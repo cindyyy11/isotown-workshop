@@ -60,9 +60,6 @@ By completing this workshop, you'll learn:
 
 ---
 
-
----
-
 ## 📋 Prerequisites
 
 | Requirement | Details |
