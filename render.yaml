@@ -1,0 +1,21 @@
+# Render.com Configuration
+# This file makes deployment easier - Render will auto-detect these settings
+
+services:
+  - type: web
+    name: isotown-server
+    env: node
+    buildCommand: npm install
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: "*"
+      # Add these in Render dashboard (don't commit secrets):
+      # - key: OPENWEATHERMAP_API_KEY
+      #   sync: false  # Set manually in dashboard
+      # - key: GEMINI_API_KEY
+      #   sync: false  # Set manually in dashboard (optional)
