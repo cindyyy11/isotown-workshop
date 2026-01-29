@@ -39,6 +39,16 @@ export default function SavesPanel({
       const data = await listSaves();
       setSaves(Array.isArray(data) ? data : []);
     } catch (e) {
+      // ===== TODO #6 (Easy - UX): Improve this error message =====
+      // Current error is generic. Make it helpful!
+      //
+      // BETTER OPTIONS:
+      // - 'Cannot connect to MockAPI. Check VITE_MOCKAPI_BASE_URL in .env'
+      // - 'Network error. Check internet connection and MockAPI project status'
+      // - Include the actual error: `MockAPI error: ${e.message}`
+      //
+      // WHY: Good error messages save debugging time
+      // LEARN: Always tell users WHAT failed and HOW to fix it
       setError(e.message || 'Failed to list saves');
       setSaves([]);
     } finally {
@@ -62,6 +72,10 @@ export default function SavesPanel({
         setError('Invalid save data');
       }
     } catch (e) {
+      // ===== TODO #7 (Easy - UX): Improve error handling =====
+      // TASK: Make this error message more specific
+      // Example: 'Save not found. It may have been deleted.' (if 404)
+      // Example: 'Network error loading save. Check connection.' (if network)
       setError(e.message || 'Failed to load save');
     }
   };

@@ -955,6 +955,34 @@ cp env.example .env`}
           >
             <FaFireExtinguisher /> Fire <span className="tool-cost">$10</span>
           </button>
+
+          {/* ===== TODO #5 (Challenge - Easy): Add PARK Button Here ===== */}
+          {/*
+            After you add PARK to src/data/buildingData.js (see TODO #4),
+            uncomment the button below to make it clickable in the UI:
+
+            <button 
+              className={`floating-tool-btn ${cityState.selectedTool === 'PARK' ? 'active' : ''}`}
+              onClick={() => handleSelectTool('PARK')}
+            >
+              <FaTree /> Park <span className="tool-cost">$4</span>
+            </button>
+
+            IMPORTANT: Don't forget to import FaTree at the top of this file!
+            Find line 2-6 and add FaTree to the imports:
+            import { ..., FaTree } from 'react-icons/fa';
+
+            TEST:
+            1. Uncomment the button above
+            2. Add FaTree to imports
+            3. Refresh app
+            4. Click PARK button
+            5. Place on grid
+            6. Check happiness increases!
+
+            WHY: This connects your data (buildingData.js) to the UI
+            LEARN: React components = Data + UI + Interactions
+          */}
         </div>
 
         <div className="toolbar-section">

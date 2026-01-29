@@ -76,6 +76,35 @@ export const BUILDING_TYPES = {
     effects: { population: 0, happiness: 0, jobs: 0, safety: 1 },
     description: '+1 Safety. Reduces random unhappiness.',
   },
+
+  // ===== TODO #4 (Challenge - Easy): Add PARK Building =====
+  //
+  // GOAL: Add a new building type to the game
+  //
+  // TASK: Uncomment and complete the code below:
+  // PARK: {
+  //   id: 'PARK',
+  //   name: 'Park',
+  //   icon: FaTree,  // ⚠️ You need to import this: import { FaTree } from 'react-icons/fa';
+  //   cost: 4,
+  //   color: '#4a7c59',  // Green color for park
+  //   secondaryColor: '#6b9d7a',
+  //   effects: { population: 0, happiness: 1, jobs: 0 },
+  //   description: '+1 Happiness. Green space for relaxation.',
+  // },
+  //
+  // STEPS TO COMPLETE THIS CHALLENGE:
+  // 1. Uncomment the PARK object above
+  // 2. Add FaTree to the imports at the top of this file (line 6)
+  //    Change: import { FaRoad, ... } from 'react-icons/fa';
+  //    To:     import { FaRoad, ..., FaTree } from 'react-icons/fa';
+  // 3. Add PARK button to toolbar in src/App.jsx (search for TODO #5)
+  // 4. Test: Place 3 parks, check happiness increases by 3
+  //
+  // WHY: Learn how game data drives UI and logic
+  // LEARN: Adding features = Data (this file) + UI (App.jsx) + Logic (cityService.js)
+  //
+  // BONUS: Try changing the cost, color, or effects!
 };
 
 export const TOOLS = {

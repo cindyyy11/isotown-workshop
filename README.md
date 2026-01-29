@@ -1,5 +1,22 @@
 # IsoTown Workshop (Participant Guide)
 
+**🌿 You are on the `workshop-start` branch!**
+
+This branch contains:
+- ✅ **Fully working app** (you can run it right now)
+- 📝 **TODO tasks** for hands-on learning (search for "TODO" in files)
+- 🎯 **Challenge opportunities** for the final 30-minute competition
+
+**8 TODOs in this branch:**
+- TODO #1 & #2: Add console.log for debugging (`weatherService.js`) - 🟢 Easy
+- TODO #3: Create `/api/version` endpoint (`server/index.js`) - 🟡 Medium
+- TODO #4: Add PARK building (`buildingData.js`) - 🟢 Easy (Challenge)
+- TODO #5: Add PARK button to toolbar (`App.jsx`) - 🟢 Easy (Challenge)
+- TODO #6 & #7: Improve error messages (`SavesPanel.jsx`) - 🟢 Easy
+- TODO #8: Add "notes" field to saves (`savesApiService.js` + `SavesPanel.jsx`) - 🔴 Hard (Challenge)
+
+---
+
 Build a tiny pixel town while learning **web development + APIs** using a real project:
 
 - **Frontend**: React 18 + Vite

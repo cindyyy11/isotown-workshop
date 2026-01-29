@@ -120,6 +120,40 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ===== TODO #3 (Medium - Express Routing): Create /api/version endpoint =====
+// 
+// GOAL: Create a new API endpoint that returns version information
+// 
+// TASK: Add the code below (uncomment and fill in):
+// app.get('/api/version', (req, res) => {
+//   res.json({
+//     version: '1.0.0',
+//     name: 'IsoTown',
+//     author: 'Your Name',  // Put your name here!
+//     description: 'Pixel city builder with real-world APIs'
+//   });
+// });
+//
+// WHY: Learn Express routing, JSON responses, and Postman testing
+//
+// TEST STEPS:
+// 1. Uncomment the code above
+// 2. Restart server: Ctrl+C then npm run dev
+// 3. Open Postman
+// 4. Create request: GET http://localhost:5176/api/version
+// 5. Click Send
+// 6. You should see the JSON response!
+//
+// BONUS CHALLENGE:
+// - Display the version in the app footer (src/App.jsx)
+// - Add it to the /api/capabilities response
+// - Add a "lastUpdated" field with current date
+//
+// LEARN: This is how every API endpoint works!
+// - Define route with app.get() or app.post()
+// - Handle request (req) and response (res)
+// - Send JSON with res.json()
+
 // ===== CAPABILITIES =====
 app.get('/api/capabilities', (req, res) => {
   res.json({

@@ -35,6 +35,47 @@ export function isSavesApiAvailable() {
  * @param {Object} payload - { name, zoneLabel, zoneLat, zoneLon, snapshot }
  * @returns {Promise<Object>} Created save with id, createdAt
  */
+// ===== TODO #8 (Challenge - Hard): Add "notes" Field Support =====
+//
+// GOAL: Extend the save system to include player notes
+//
+// FULL-STACK FEATURE - Requires changes in 3 places:
+//
+// 1. MOCKAPI SETUP (do this first):
+//    - Go to https://mockapi.io → Your project → citysaves resource
+//    - Click "Edit" → Add new field:
+//      Field name: notes
+//      Type: string
+//      Default: "" (empty string)
+//    - Click Save
+//
+// 2. THIS FILE (savesApiService.js):
+//    - Add "notes" to the body below (line 47):
+//      notes: payload.notes || '',
+//    - Do the same in updateSave() function (around line 120)
+//
+// 3. UI (SavesPanel.jsx):
+//    - Add a textarea for users to type notes
+//    - Pass notes in the payload when saving
+//    - Display notes when loading
+//
+// TEST STEPS:
+// 1. Add notes field to MockAPI
+// 2. Add notes: payload.notes || '', to body below
+// 3. In SavesPanel.jsx, add this before the save name input:
+//    <textarea 
+//      placeholder="Add notes about this city..."
+//      value={notes}
+//      onChange={(e) => setNotes(e.target.value)}
+//    />
+//    (You'll need to add: const [notes, setNotes] = useState('');)
+// 4. When building payload, add: notes
+// 5. When loading, display: save.notes
+// 6. Test: Save with notes → Reload page → Load save → Notes appear!
+//
+// WHY: Learn full-stack feature development
+// LEARN: Data model (MockAPI) + API layer (this file) + UI (SavesPanel) must align
+//
 export async function createSave(payload) {
   const url = getUrl();
   if (!url) throw new Error('VITE_MOCKAPI_BASE_URL is not set');
@@ -45,6 +86,7 @@ export async function createSave(payload) {
     zoneLat: payload.zoneLat ?? 0,
     zoneLon: payload.zoneLon ?? 0,
     snapshot: payload.snapshot || {},
+    // TODO: Add notes field here (see TODO #8 above)
   };
 
   const res = await fetch(url, {
@@ -123,6 +165,7 @@ export async function updateSave(id, payload) {
     zoneLat: payload.zoneLat ?? 0,
     zoneLon: payload.zoneLon ?? 0,
     snapshot: payload.snapshot || {},
+    // TODO: Also add notes field here (same as createSave - see TODO #8)
   };
 
   const res = await fetch(url, {

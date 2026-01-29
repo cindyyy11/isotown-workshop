@@ -109,11 +109,25 @@ export async function fetchWeather(lat = 3.1390, lon = 101.6869) {
   // Check cache first
   const cached = getCachedWeather();
   if (cached) {
-    console.log('Using cached weather data');
+    // ===== TODO #1 (Easy - Debugging): Add console.log here =====
+    // When does this code run? Add a console.log to find out!
+    // 
+    // TASK: Add this line below (uncomment it):
+    // console.log('✅ Using cached weather data:', cached);
+    // 
+    // WHY: Helps you see when the cache is hit (should happen within 5 min of previous fetch)
+    // TEST: Change location twice within 5 minutes, check Console tab
+    // LEARN: Caching reduces API calls = faster app + lower costs
     return cached;
   }
 
-  console.log('Fetching fresh weather data from server...');
+  // ===== TODO #2 (Easy - Debugging): Add console.log here =====
+  // TASK: Add this line below (uncomment it):
+  // console.log('🌐 Fetching fresh weather from server...', { lat, lon });
+  // 
+  // WHY: Shows when a real API call happens
+  // TEST: Change location, watch Console tab AND Network tab
+  // LEARN: Each fetch costs money in production (that's why we cache!)
 
   try {
     const apiBase = getApiBase();
