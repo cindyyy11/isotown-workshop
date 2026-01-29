@@ -6,7 +6,51 @@ Build a tiny pixel town while learning **web development + APIs** using a real p
 - **Backend**: Node + Express + SQLite
 - **APIs**: Google Maps (location), OpenWeatherMap (weather), optional MockAPI (CRUD), optional Gemini (AI)
 
-This repo is designed so you **don’t code from scratch**—you’ll run the project and make small guided changes.
+This repo is designed so you **don't code from scratch**—you'll run the project and make small guided changes.
+
+## 🌿 Repository Branches
+
+This repository has **three branches** designed for different purposes:
+
+| Branch | Purpose | Who Uses It |
+|--------|---------|-------------|
+| `main` | Fully working demo with all features enabled | Instructor (live demo) |
+| `workshop-start` | **← START HERE** - Guided learning with TODO tasks | **Participants (you!)** |
+| `threejs-extension` | Advanced 3D rendering with Three.js (future extension) | After workshop (optional) |
+
+### Which branch should I use?
+
+**👉 Use `workshop-start` for the workshop** (recommended for participants)
+
+### How to switch branches
+
+```bash
+# Check which branch you're on
+git branch
+
+# Switch to the workshop-start branch (participants start here)
+git checkout workshop-start
+
+# Switch to main branch (to see the complete demo)
+git checkout main
+
+# Switch to threejs-extension (advanced 3D version)
+git checkout threejs-extension
+```
+
+### Creating these branches (for instructors)
+
+```bash
+# Create workshop-start branch from main
+git checkout main
+git checkout -b workshop-start
+
+# Create threejs-extension branch from main
+git checkout main
+git checkout -b threejs-extension
+```
+
+**Note for participants:** You should already be on the `workshop-start` branch. If not, run `git checkout workshop-start` before starting the setup.
 
 ## What you need
 
@@ -94,7 +138,7 @@ Read `GAME_RULES.md` for the full rules. The main idea:
 - **MockAPI CRUD docs**: `ENDPOINTS.md`
 - **Data flow walkthrough**: `DATA_FLOW.md`
 
-## Backend API (the ones you’ll see in DevTools)
+## Backend API (the ones you'll see in DevTools)
 
 - `GET /health`
 - `GET /api/capabilities`
