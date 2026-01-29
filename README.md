@@ -60,24 +60,6 @@ By completing this workshop, you'll learn:
 
 ---
 
-**📘 Running this as a workshop?** See:
-- **[WORKSHOP_CONDUCT.md](./WORKSHOP_CONDUCT.md)** - Complete facilitator guide (2.5–3 hours)
-- **[WORKSHOP_MODE_GUIDE.md](./WORKSHOP_MODE_GUIDE.md)** - Interactive Workshop Mode (speaker-led with voting)
-- **[WORKSHOP_MODE_SUMMARY.md](./WORKSHOP_MODE_SUMMARY.md)** - Technical flow & integration details
-- **[API_PURPOSES.md](./API_PURPOSES.md)** - Why each API is included & how to use them effectively
-- **[GEMINI_USAGE.md](./GEMINI_USAGE.md)** - What the Gemini API does, when it runs, how to verify it works
-- **[HOW_APIS_AND_DATA_WORK.md](./HOW_APIS_AND_DATA_WORK.md)** - Weather, Maps, Gemini, season, day/time: what’s real vs simulated
-- **[WEATHER_CONDITIONS.md](./WEATHER_CONDITIONS.md)** - Weather conditions, effects, and CLEAR fallback
-- **[GAME_RULES.md](./GAME_RULES.md)** - Day, pause, economy, end game rules, and workshop integration
-- **[REAL_DATA_CONFIRMATION.md](./REAL_DATA_CONFIRMATION.md)** - Confirms weather/season are 100% real (no mock data)
-- **[CHARACTER_PURPOSE.md](./CHARACTER_PURPOSE.md)** - Character system explanation
-- **[DAY_TIME_PURPOSE.md](./DAY_TIME_PURPOSE.md)** - Why day/time are simulated and their purpose
-- **[WORKSHOP_MODE_EXPLAINED.md](./WORKSHOP_MODE_EXPLAINED.md)** - How Workshop Mode works & what you learn
-- **[DATA_FLOW.md](./DATA_FLOW.md)** - How data is passed through the app (APIs, state, components)
-- **[AGENT_CITY_INSPIRED_ROADMAP.md](./AGENT_CITY_INSPIRED_ROADMAP.md)** - Agent City–inspired features (desires, working hours, rent, etc.) — workshop-appropriate
-- **[PROJECT_COMPLETENESS.md](./PROJECT_COMPLETENESS.md)** - Complete checklist of all features, CRUD, APIs, endpoints
-- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - When to deploy WebSocket server (in-person vs online workshops)
-- **[RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)** - Step-by-step Render.com deployment for remote workshops
 
 ---
 
