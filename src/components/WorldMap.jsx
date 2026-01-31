@@ -22,6 +22,7 @@ export default function WorldMap({
     lat: currentZone?.lat || 3.1390,
     lon: currentZone?.lon || 101.6869,
     label: currentZone?.label || 'Kuala Lumpur',
+    type: currentZone?.type || 'city',
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -104,6 +105,7 @@ export default function WorldMap({
         // Get place name
         geocoder.geocode({ location: { lat, lng: lon } }, (results, status) => {
           let label = 'Custom Location';
+          let type = 'location';
           if (status === 'OK' && results[0]) {
             // Try to get city name
             const cityComponent = results[0].address_components.find(
@@ -112,6 +114,16 @@ export default function WorldMap({
             const countryComponent = results[0].address_components.find(
               c => c.types.includes('country')
             );
+            
+            // Determine location type
+            if (cityComponent?.types.includes('locality')) {
+              type = 'city';
+            } else if (cityComponent?.types.includes('administrative_area_level_1')) {
+              type = 'region';
+            } else if (countryComponent) {
+              type = 'country';
+            }
+            
             if (cityComponent) {
               label = cityComponent.long_name;
               if (countryComponent) {
@@ -122,7 +134,7 @@ export default function WorldMap({
             }
           }
           
-          setSelectedLocation({ lat, lon, label });
+          setSelectedLocation({ lat, lon, label, type });
           fetchWeatherPreview(lat, lon);
         });
       });
@@ -173,7 +185,20 @@ export default function WorldMap({
         );
         const label = cityComponent?.long_name || results[0].formatted_address.split(',')[0];
         
-        setSelectedLocation({ lat, lon, label });
+        // Determine location type
+        let type = 'location';
+        if (cityComponent?.types.includes('locality')) {
+          type = 'city';
+        } else if (cityComponent?.types.includes('administrative_area_level_1')) {
+          type = 'region';
+        } else {
+          const countryComponent = results[0].address_components.find(
+            c => c.types.includes('country')
+          );
+          if (countryComponent) type = 'country';
+        }
+        
+        setSelectedLocation({ lat, lon, label, type });
         setSearchQuery('');
         fetchWeatherPreview(lat, lon);
       }
@@ -182,7 +207,7 @@ export default function WorldMap({
 
   // Handle confirm selection
   const handleConfirm = () => {
-    onSelectLocation(selectedLocation.lat, selectedLocation.lon, selectedLocation.label);
+    onSelectLocation(selectedLocation.lat, selectedLocation.lon, selectedLocation.label, selectedLocation.type);
     onClose();
   };
 

@@ -4,15 +4,19 @@ import {
   FaPause, FaRoad, FaHome, FaCoffee, FaBuilding, FaTrash, FaSave, FaCoins, FaUsers, FaBriefcase,
   FaSmile, FaSun, FaCloudRain, FaWind, FaFire, FaRedo, FaTimes, FaLeaf, FaCloudUploadAlt, FaImage,
   FaSnowflake, FaNewspaper, FaMoon, FaUtensils, FaShieldAlt, FaFireExtinguisher, FaList, FaInfoCircle,
+  FaMap,
 } from 'react-icons/fa';
 import IsometricCanvas from './components/IsometricCanvas';
+import ThreeCanvas from './components/ThreeCanvas';
+import GameUI from './components/GameUI';
+import CharacterInfoPanel from './components/CharacterInfoPanel';
+import './components/CharacterInfoPanel.css';
 import SavesPanel from './components/SavesPanel';
 import Toolbar from './components/Toolbar';
 import StatsPanel from './components/StatsPanel';
 import ControlPanel from './components/ControlPanel';
 import WeatherConfig from './components/WeatherConfig';
 import WorldMap from './components/WorldMap';
-import WorkshopPanel from './components/WorkshopPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
 import MayorReportPanel from './components/MayorReportPanel';
 import { fetchWeather, clearWeatherCache } from './services/weatherService';
@@ -58,7 +62,7 @@ export default function App() {
   const [setupError, setSetupError] = useState(''); // NEW: Store error message
   const [hasSave, setHasSave] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: 3.1390, lon: 101.6869 });
-  const [zone, setZone] = useState({ lat: 3.1390, lon: 101.6869, label: 'Kuala Lumpur' });
+  const [zone, setZone] = useState({ lat: 3.1390, lon: 101.6869, label: 'Kuala Lumpur', type: 'city' });
   const [nextTickIn, setNextTickIn] = useState(null);
   const [capabilities, setCapabilities] = useState({ available: false, server: false, gemini: false });
   const [leaderboard, setLeaderboard] = useState([]);
@@ -68,7 +72,6 @@ export default function App() {
   const [mayorLoading, setMayorLoading] = useState(false);
   const [showWorldMap, setShowWorldMap] = useState(false);
   const [showSavesPanel, setShowSavesPanel] = useState(false);
-  const [showWorkshopPanel, setShowWorkshopPanel] = useState(false);
   const [showGazettePanel, setShowGazettePanel] = useState(false);
   const [currentSaveId, setCurrentSaveId] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -79,6 +82,11 @@ export default function App() {
   const [showRulesPanel, setShowRulesPanel] = useState(false);
   const [collectToast, setCollectToast] = useState(null); // { amount } when player collects coins
   const [mayorError, setMayorError] = useState(null); // Gemini report fetch error
+  const [useThreeJS, setUseThreeJS] = useState(true); // 🎮 START IN 3D MODE BY DEFAULT
+  const [selectedCharacter, setSelectedCharacter] = useState(null); // For character info panel
+  const [weather3D, setWeather3D] = useState('clear'); // Weather for 3D mode
+  const [showAppMinimap, setShowAppMinimap] = useState(true); // App minimap (can close)
+  const [isFullscreen, setIsFullscreen] = useState(false); // Fullscreen state
   const canvasRef = useRef(null);
   const lastTownSquareTriggerRef = useRef(0);
   const mayorReportInFlightRef = useRef(false);
@@ -455,11 +463,11 @@ export default function App() {
   };
 
   // Handle change location (from WorldMap or WeatherConfig)
-  const handleApplyCoordinates = async (lat, lon, label = 'Custom Zone') => {
+  const handleApplyCoordinates = async (lat, lon, label = 'Custom Zone', type = 'location') => {
     setCoordinates({ lat, lon });
-    setZone({ lat, lon, label });
+    setZone({ lat, lon, label, type });
     try {
-      localStorage.setItem('isotown_zone_v1', JSON.stringify({ lat, lon, label }));
+      localStorage.setItem('isotown_zone_v1', JSON.stringify({ lat, lon, label, type }));
     } catch (error) {
       // Ignore storage errors
     }
@@ -846,25 +854,87 @@ cp env.example .env`}
 
   return (
     <div className="game-fullscreen" style={{ background: landColor }}>
-      <IsometricCanvas
-        ref={canvasRef}
-        grid={cityState.grid}
-        selectedTool={cityState.selectedTool}
-        onTileClick={handleTileClick}
-        characters={cityState.characters || []}
-        onCharactersUpdate={(updatedChars) => {
-          setCityState(prev => ({ ...prev, characters: updatedChars }));
-        }}
-        cityState={cityState}
-        zone={zone}
-        season={gameTime.season}
-        hour24={gameTime.hour24}
-        isNight={gameTime.isNight}
-        showPlayerCharacter={cityState.includePlayer !== false}
-        onCollectCoins={handleCollectCoins}
-        onBuildingInteract={handleBuildingInteract}
-        onTriggerGemini={handleTriggerGemini}
-      />
+      {useThreeJS ? (
+        <>
+          {/* Minecraft-style: canvas between top bar (56px) and hotbar (88px) */}
+          <div className="game-3d-layout" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
+            <div className="game-3d-canvas-wrap" style={{ flex: 1, minHeight: 0, position: 'relative', boxSizing: 'border-box' }}>
+              <ThreeCanvas
+                key="three-canvas"
+                grid={cityState.grid}
+                selectedTool={cityState.selectedTool}
+                onTileClick={handleTileClick}
+                characters={cityState.characters || []}
+                season={gameTime.season}
+                showHelpers={false}
+                onCharacterClick={(char) => setSelectedCharacter(char)}
+                weather={weather3D}
+              />
+            </div>
+          </div>
+          <GameUI
+            onToggleMinimap={() => {}}
+            onToggleCharacterRoster={() => {}}
+            onToggleSettings={() => {}}
+            onToggleWeather={() => {
+              const weathers = ['clear', 'cloudy', 'rain', 'night'];
+              const currentIndex = weathers.indexOf(weather3D);
+              setWeather3D(weathers[(currentIndex + 1) % weathers.length]);
+            }}
+            onCameraReset={() => {
+              // Camera reset handled internally
+            }}
+            onTimeChange={(hour) => {
+              // Could update game time if desired
+            }}
+            characters={cityState.characters || []}
+            weather={weather3D}
+            timeOfDay={gameTime.isNight ? 'night' : 'day'}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={() => {
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                setIsFullscreen(true);
+              } else {
+                document.exitFullscreen();
+                setIsFullscreen(false);
+              }
+            }}
+            season={gameTime.season}
+            selectedTool={cityState.selectedTool}
+            onToolSelect={(toolId) => {
+              setCityState(prev => ({ ...prev, selectedTool: toolId }));
+            }}
+            onToggle2D3D={() => setUseThreeJS(false)}
+            layout="minecraft"
+            coins={cityState.coins}
+            population={cityState.population}
+            jobs={cityState.jobs}
+            happiness={cityState.happiness}
+            cityGrid={cityState.grid}
+          />
+        </>
+      ) : (
+        <IsometricCanvas
+          ref={canvasRef}
+          grid={cityState.grid}
+          selectedTool={cityState.selectedTool}
+          onTileClick={handleTileClick}
+          characters={cityState.characters || []}
+          onCharactersUpdate={(updatedChars) => {
+            setCityState(prev => ({ ...prev, characters: updatedChars }));
+          }}
+          cityState={cityState}
+          zone={zone}
+          season={gameTime.season}
+          hour24={gameTime.hour24}
+          isNight={gameTime.isNight}
+          showPlayerCharacter={cityState.includePlayer !== false}
+          onCollectCoins={handleCollectCoins}
+          onBuildingInteract={handleBuildingInteract}
+          onTriggerGemini={handleTriggerGemini}
+        />
+      )}
 
       {/* TOP STATUS BAR */}
       <div className="floating-top-bar">
@@ -876,6 +946,18 @@ cp env.example .env`}
           onClick={() => setIsPaused(!isPaused)}
         >
           {isPaused ? <FaPlay /> : <FaPause />}
+        </button>
+        <button
+          className="top-bar-btn"
+          title={useThreeJS ? "Switch to 2D Canvas" : "Switch to 3D Three.js"}
+          onClick={() => setUseThreeJS(!useThreeJS)}
+          style={{ 
+            marginLeft: '8px', 
+            background: useThreeJS ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : undefined,
+            fontWeight: useThreeJS ? '700' : '600'
+          }}
+        >
+          {useThreeJS ? '3D 🎮' : '2D'}
         </button>
         <div 
           className="time-display"
@@ -897,7 +979,8 @@ cp env.example .env`}
         </div>
       </div>
 
-      {/* FLOATING LEFT TOOLBAR */}
+      {/* FLOATING LEFT TOOLBAR - Hidden in 3D mode */}
+      {!useThreeJS && (
       <div className="floating-toolbar">
         <div className="toolbar-section">
           <div className="toolbar-section-title">INFRASTRUCTURE</div>
@@ -974,6 +1057,7 @@ cp env.example .env`}
           <FaImage /> Export Image
         </button>
       </div>
+      )}
 
       {/* FLOATING STATS (Top Right) */}
       <div className="floating-stats">
@@ -1063,11 +1147,12 @@ cp env.example .env`}
         </div>
       )}
 
-      {/* MINIMAP (Bottom Right) */}
+      {/* MINIMAP (App minimap – can close) - Only in 2D mode */}
+      {!useThreeJS && showAppMinimap && (
       <div className="floating-minimap">
         <div className="minimap-header">
           MINIMAP
-          <button className="minimap-close" onClick={() => {}}><FaTimes /></button>
+          <button className="minimap-close" onClick={() => setShowAppMinimap(false)} title="Close minimap"><FaTimes /></button>
         </div>
         <div className="minimap-canvas">
           {/* Simple minimap representation */}
@@ -1095,14 +1180,22 @@ cp env.example .env`}
           </div>
         </div>
       </div>
+      )}
+      {!useThreeJS && !showAppMinimap && (
+        <button
+          type="button"
+          className="minimap-open-btn"
+          onClick={() => setShowAppMinimap(true)}
+          title="Show minimap"
+        >
+          <FaMap /> Map
+        </button>
+      )}
 
       {/* FLOATING ACTION BUTTONS (Bottom Left) */}
-      <div className="floating-actions">
+      <div className={`floating-actions ${useThreeJS ? 'floating-actions-3d' : ''}`}>
         <button className="action-btn" onClick={() => setShowRulesPanel(true)} title="Game rules & costs">
           <FaInfoCircle />
-        </button>
-        <button className="action-btn" onClick={() => setShowWorkshopPanel(true)} title="Workshop Mode">
-          <FaUsers />
         </button>
         <button className="action-btn" onClick={() => setShowSavesPanel(true)} title="Cloud Saves (CRUD)">
           <FaCloudUploadAlt />
@@ -1127,7 +1220,9 @@ cp env.example .env`}
 
       {/* LOCATION BADGE (Bottom Center) */}
       <div className="floating-location" title="Location from Google Maps">
-        <FaMapMarkerAlt /> {zone?.label || 'Unknown'}
+        <FaMapMarkerAlt /> 
+        <span style={{ fontWeight: '600' }}>{zone?.label || 'Unknown'}</span>
+        {zone?.type && <span style={{ fontSize: '10px', opacity: '0.8', marginLeft: '4px' }}>({zone.type})</span>}
       </div>
 
       {/* CONTROLS HINT (when player character enabled) */}
@@ -1164,28 +1259,6 @@ cp env.example .env`}
         onLoadSave={handleLoadSave}
         onCurrentSaveIdChange={setCurrentSaveId}
       />
-
-      {/* Workshop Mode Panel */}
-      {showWorkshopPanel && (
-        <div className="workshop-overlay" onClick={() => setShowWorkshopPanel(false)}>
-          <div className="workshop-modal" onClick={(e) => e.stopPropagation()}>
-            <WorkshopPanel
-              enabled={capabilities.available}
-              cityState={cityState}
-              onApplyVote={handleApplyVote}
-              onReceiveState={handleReceiveState}
-              onLog={handleWorkshopLog}
-            />
-            <button
-              className="workshop-close-btn"
-              onClick={() => setShowWorkshopPanel(false)}
-              title="Close"
-            >
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Building Info (E key when adjacent) */}
       {buildingInteract && (
@@ -1251,6 +1324,14 @@ cp env.example .env`}
         </div>
       )}
 
+      {/* Character Info Panel */}
+      {selectedCharacter && (
+        <CharacterInfoPanel
+          character={selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+        />
+      )}
+      
       {/* End Game Modal */}
       {gameStatus && (
         <div className="workshop-overlay" onClick={() => setGameStatus(null)}>

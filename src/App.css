@@ -2531,12 +2531,22 @@ body::before {
 }
 
 /* ===== FULL SCREEN GAME LAYOUT ===== */
+html, body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
 .game-fullscreen {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
   background: #4a7c59;
   overflow: hidden;
   cursor: default;
@@ -2595,7 +2605,7 @@ body::before {
   border-radius: 24px;
   border: 2px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 100;
+  z-index: 1002;
   backdrop-filter: blur(10px);
 }
 
@@ -2872,6 +2882,36 @@ body::before {
   font-size: 12px;
 }
 
+/* Show minimap button when minimap is closed */
+.minimap-open-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  background: rgba(40, 44, 52, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.minimap-open-btn:hover {
+  background: rgba(60, 64, 72, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.minimap-open-btn svg {
+  font-size: 14px;
+}
+
 .minimap-canvas {
   padding: 8px;
 }
@@ -2953,13 +2993,38 @@ body::before {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* 3D mode: compact row above hotbar so it fits the screen */
+.floating-actions-3d {
+  bottom: 96px;
+  left: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+}
+
+.floating-actions-3d .action-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border-width: 2px;
+}
+
+.floating-actions-3d .action-btn svg {
+  font-size: 20px;
+}
+
+.floating-actions-3d .action-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
 /* ===== FLOATING LOCATION BADGE ===== */
 .floating-location {
   position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 20px;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 12px 16px;
   background: rgba(40, 44, 52, 0.9);
   border-radius: 20px;
   border: 2px solid rgba(255, 255, 255, 0.1);
@@ -2970,8 +3035,11 @@ body::before {
   z-index: 100;
   backdrop-filter: blur(10px);
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 200px;
+  word-wrap: break-word;
 }
 
 .floating-location svg {
@@ -3059,54 +3127,390 @@ body::before {
   display: none;
 }
 
+/* ===== 3D CANVAS WRAPPER (space for top bar + hotbar) - IMMERSIVE MODE ===== */
+.game-3d-canvas-wrap {
+  padding-top: 48px;
+  padding-bottom: 72px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-3d-canvas-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.game-3d-canvas-wrap canvas {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== RESPONSIVE DESIGN – MEDIUM SCREENS ===== */
+@media (max-width: 1440px), (max-height: 900px) {
+  .game-3d-canvas-wrap {
+    padding-top: 40px;
+    padding-bottom: 60px;
+  }
+
+  .floating-top-bar {
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    gap: 8px;
+    border-radius: 16px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .top-bar-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .top-bar-btn svg {
+    font-size: 11px;
+  }
+
+  .time-display {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .time-display .time-icon {
+    font-size: 11px;
+  }
+
+  .weather-badge,
+  .season-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .weather-icon-inline,
+  .season-icon {
+    font-size: 11px;
+  }
+
+  .floating-toolbar {
+    top: 48px;
+    left: 8px;
+    width: 110px;
+    gap: 4px;
+  }
+
+  .toolbar-section {
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  .toolbar-section-title {
+    font-size: 8px;
+    margin-bottom: 4px;
+  }
+
+  .floating-tool-btn {
+    padding: 6px 8px;
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .floating-tool-btn svg {
+    font-size: 12px;
+  }
+
+  .floating-tool-btn .tool-cost {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  .floating-stats {
+    top: 48px;
+    right: 8px;
+    gap: 4px;
+  }
+
+  .floating-stats .stat-item {
+    padding: 6px 10px;
+    min-width: 72px;
+    border-radius: 8px;
+  }
+
+  .floating-stats .stat-icon,
+  .floating-stats .stat-icon svg {
+    font-size: 14px;
+  }
+
+  .floating-stats .stat-value {
+    font-size: 13px;
+  }
+
+  .floating-stats .stat-goal {
+    font-size: 10px;
+  }
+
+  .floating-minimap {
+    bottom: 8px;
+    right: 8px;
+    width: 140px;
+    border-radius: 8px;
+    padding: 0;
+  }
+
+  .minimap-header {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+
+  .minimap-canvas {
+    padding: 6px;
+  }
+
+  .minimap-grid {
+    gap: 0;
+  }
+
+  .minimap-legend {
+    margin-top: 4px;
+    padding-top: 4px;
+    gap: 8px;
+  }
+
+  .legend-item {
+    font-size: 8px;
+  }
+
+  .legend-item span:first-child {
+    width: 8px;
+    height: 8px;
+  }
+
+  .floating-actions {
+    bottom: 10px;
+    left: 8px;
+    gap: 6px;
+  }
+
+  .action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+  }
+
+  .action-btn svg {
+    font-size: 14px;
+  }
+
+  .floating-actions-3d {
+    bottom: 72px;
+    left: 8px;
+    gap: 6px;
+  }
+
+  .floating-actions-3d .action-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .floating-actions-3d .action-btn svg {
+    font-size: 16px;
+  }
+
+  .floating-location {
+    left: 12px;
+    padding: 10px 12px;
+    font-size: 10px;
+    border-radius: 16px;
+    max-width: 160px;
+  }
+
+  .floating-location svg {
+    font-size: 10px;
+  }
+
+  .controls-hint {
+    font-size: 10px;
+    padding: 4px 8px;
+    bottom: 10px;
+  }
+
+  .tax-slider {
+    max-width: 60px;
+  }
+
+  .minimap-open-btn {
+    bottom: 10px;
+    right: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN – COMPACT SCREENS ===== */
+@media (max-width: 1400px) and (max-height: 800px) {
+  .game-3d-canvas-wrap {
+    padding-top: 36px;
+    padding-bottom: 52px;
+  }
+
+  .floating-top-bar {
+    top: 6px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .top-bar-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .time-display,
+  .weather-badge,
+  .season-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .floating-toolbar {
+    top: 42px;
+    left: 6px;
+    width: 96px;
+  }
+
+  .floating-tool-btn {
+    padding: 5px 6px;
+    font-size: 9px;
+  }
+
+  .floating-tool-btn svg {
+    font-size: 11px;
+  }
+
+  .floating-stats {
+    top: 42px;
+    right: 6px;
+  }
+
+  .floating-stats .stat-item {
+    padding: 5px 8px;
+    min-width: 64px;
+  }
+
+  .floating-stats .stat-value {
+    font-size: 12px;
+  }
+
+  .floating-minimap {
+    width: 120px;
+    bottom: 6px;
+    right: 6px;
+  }
+
+  .minimap-header {
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+
+  .minimap-canvas {
+    padding: 4px;
+  }
+
+  .floating-actions {
+    bottom: 8px;
+    left: 6px;
+    gap: 4px;
+  }
+
+  .action-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .floating-actions-3d {
+    bottom: 66px;
+  }
+
+  .floating-actions-3d .action-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .floating-actions-3d .action-btn svg {
+    font-size: 14px;
+  }
+
+  .floating-location {
+    left: 8px;
+    padding: 8px 10px;
+    font-size: 9px;
+    max-width: 140px;
+  }
+
+  .controls-hint {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+}
+
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 768px) {
   .floating-toolbar {
     top: auto;
     bottom: 80px;
     left: 8px;
-    width: 120px;
+    width: 100px;
   }
 
   .floating-stats {
-    top: 70px;
+    top: 48px;
     right: 8px;
   }
 
   .floating-stats .stat-item {
-    padding: 8px 10px;
-    min-width: 70px;
+    padding: 6px 8px;
+    min-width: 64px;
   }
 
   .floating-stats .stat-icon {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .floating-stats .stat-value {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .floating-minimap {
-    width: 140px;
+    width: 120px;
     bottom: 8px;
     right: 8px;
   }
 
   .floating-top-bar {
-    padding: 6px 12px;
-    gap: 8px;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
   .time-display,
   .season-badge {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 10px;
+    padding: 3px 6px;
   }
 
   .action-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
   }
 
   .city-log-panel {
