@@ -2572,6 +2572,11 @@ body::before {
   cursor: not-allowed;
 }
 
+/* Draggable canvas - always show grab cursor when not placing */
+.game-fullscreen .isometric-canvas:not(.tool-ROAD):not(.tool-HOUSE):not(.tool-CAFE):not(.tool-OFFICE):not(.tool-RESTAURANT):not(.tool-POLICE):not(.tool-FIRE):not(.tool-ERASE) {
+  cursor: grab;
+}
+
 .game-fullscreen .isometric-canvas.dragging {
   cursor: grabbing !important;
 }
@@ -2584,29 +2589,29 @@ body::before {
 /* ===== FLOATING TOP BAR ===== */
 .floating-top-bar {
   position: fixed;
-  top: 16px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: 10px;
+  padding: 6px 14px;
   background: rgba(40, 44, 52, 0.9);
-  border-radius: 24px;
+  border-radius: 20px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
   z-index: 100;
   backdrop-filter: blur(10px);
 }
 
 .top-bar-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2624,37 +2629,37 @@ body::before {
 }
 
 .top-bar-btn svg {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .time-display {
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 4px 12px;
+  padding: 3px 10px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .time-display .time-icon {
-  font-size: 14px;
+  font-size: 13px;
   color: #ffd700; /* Gold for sun/moon */
   filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
 }
 
 .weather-badge {
   color: #a8d4f0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 4px 12px;
+  padding: 3px 10px;
   background: rgba(100, 160, 200, 0.25);
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .weather-badge-label {
@@ -2664,70 +2669,70 @@ body::before {
 
 .season-badge {
   color: #ffb6c1;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 4px 12px;
+  padding: 3px 10px;
   background: rgba(255, 182, 193, 0.2);
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .season-icon {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .weather-icon-inline {
-  font-size: 14px;
+  font-size: 13px;
   vertical-align: middle;
 }
 
 /* ===== FLOATING LEFT TOOLBAR ===== */
 .floating-toolbar {
   position: fixed;
-  top: 70px;
-  left: 16px;
-  width: 140px;
+  top: 60px;
+  left: 12px;
+  width: 130px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   z-index: 100;
 }
 
 .toolbar-section {
   background: rgba(40, 44, 52, 0.9);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
 }
 
 .toolbar-section-title {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   letter-spacing: 1px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   padding: 0 4px;
 }
 
 .floating-tool-btn {
   width: 100%;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.15s;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .floating-tool-btn:last-child {
@@ -2750,21 +2755,21 @@ body::before {
 
 .floating-tool-btn .tool-cost {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 9px;
   opacity: 0.7;
   background: rgba(0, 0, 0, 0.2);
-  padding: 2px 6px;
+  padding: 2px 5px;
   border-radius: 4px;
 }
 
 .floating-tool-btn svg {
-  font-size: 14px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
 .floating-tool-btn.export-btn {
   background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .floating-tool-btn.export-btn:hover {
@@ -2774,40 +2779,40 @@ body::before {
 /* ===== FLOATING STATS (Top Right) ===== */
 .floating-stats {
   position: fixed;
-  top: 70px;
-  right: 16px;
+  top: 60px;
+  right: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   z-index: 100;
 }
 
 .floating-stats .stat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 8px 12px;
   background: rgba(40, 44, 52, 0.9);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  min-width: 90px;
+  min-width: 80px;
 }
 
 .floating-stats .stat-icon {
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
 }
 
 .floating-stats .stat-icon svg {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .floating-stats .stat-value {
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -2818,44 +2823,72 @@ body::before {
 
 .floating-stats .stat-goal {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   margin-left: 2px;
 }
 
-/* ===== FLOATING MINIMAP ===== */
+/* ===== FLOATING MINIMAP (Draggable & Collapsible) ===== */
 .floating-minimap {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  width: 180px;
+  width: 140px;
   background: rgba(40, 44, 52, 0.95);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   z-index: 100;
   backdrop-filter: blur(10px);
+  transition: width 0.2s ease, height 0.2s ease;
+  user-select: none;
+}
+
+.floating-minimap.dragging {
+  cursor: grabbing !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.floating-minimap.minimap-collapsed {
+  width: 140px;
+  height: 36px;
 }
 
 .minimap-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 1px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.minimap-toggle {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.minimap-toggle:hover {
+  color: white;
 }
 
 .minimap-close {
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
+  font-size: 10px;
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -2869,11 +2902,11 @@ body::before {
 }
 
 .minimap-close svg {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .minimap-canvas {
-  padding: 8px;
+  padding: 6px;
 }
 
 .minimap-grid {
@@ -2881,7 +2914,7 @@ body::before {
   grid-template-columns: repeat(12, 1fr);
   gap: 1px;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
@@ -2893,23 +2926,23 @@ body::before {
 .minimap-legend {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 8px;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .legend-item span:first-child {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
   display: inline-block;
 }
@@ -2917,40 +2950,40 @@ body::before {
 /* ===== FLOATING ACTION BUTTONS (Bottom Left) ===== */
 .floating-actions {
   position: fixed;
-  bottom: 16px;
-  left: 16px;
+  bottom: 12px;
+  left: 12px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 6px;
   z-index: 100;
 }
 
 .action-btn {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(40, 44, 52, 0.9);
   border: 2px solid rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
 }
 
 .action-btn svg {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .action-btn:hover {
   background: rgba(60, 64, 72, 0.95);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* ===== FLOATING LOCATION BADGE ===== */
@@ -3060,21 +3093,44 @@ body::before {
 }
 
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 1440px) {
+  .floating-toolbar {
+    width: 120px;
+    top: 55px;
+  }
+
+  .floating-stats {
+    top: 55px;
+  }
+
+  .floating-top-bar {
+    padding: 5px 12px;
+    gap: 8px;
+  }
+
+  .time-display,
+  .weather-badge,
+  .season-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}
+
 @media (max-width: 768px) {
   .floating-toolbar {
     top: auto;
     bottom: 80px;
     left: 8px;
-    width: 120px;
+    width: 110px;
   }
 
   .floating-stats {
-    top: 70px;
+    top: 60px;
     right: 8px;
   }
 
   .floating-stats .stat-item {
-    padding: 8px 10px;
+    padding: 6px 8px;
     min-width: 70px;
   }
 
@@ -3083,30 +3139,28 @@ body::before {
   }
 
   .floating-stats .stat-value {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .floating-minimap {
-    width: 140px;
-    bottom: 8px;
-    right: 8px;
+    width: 110px;
   }
 
   .floating-top-bar {
-    padding: 6px 12px;
-    gap: 8px;
+    padding: 5px 10px;
+    gap: 6px;
   }
 
   .time-display,
   .season-badge {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 10px;
+    padding: 3px 6px;
   }
 
   .action-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
   }
 
   .city-log-panel {
@@ -3115,6 +3169,17 @@ body::before {
     left: 8px;
     width: auto;
     max-width: none;
+  }
+
+  .floating-location {
+    font-size: 11px;
+    padding: 6px 14px;
+  }
+
+  .controls-hint {
+    font-size: 10px;
+    padding: 5px 12px;
+    bottom: 48px;
   }
 }
 

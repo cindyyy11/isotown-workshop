@@ -53,6 +53,8 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [mouseDownPos, setMouseDownPos] = useState({ x: 0, y: 0 }); // Track initial mouse position
+  const [hasMoved, setHasMoved] = useState(false); // Track if mouse has moved during drag
   const [localCharacters, setLocalCharacters] = useState(characters);
   const lastUpdateRef = useRef(Date.now());
   const latestCharactersRef = useRef(characters);
@@ -178,11 +180,15 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
 
   // Handle mouse down (start drag)
   const handleMouseDown = useCallback((e) => {
-    // Right click or middle click to drag
-    if (e.button === 1 || e.button === 2 || e.shiftKey) {
+    // Allow any mouse button or simple left-click to drag
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+    setMouseDownPos({ x: e.clientX, y: e.clientY });
+    setHasMoved(false);
+    
+    // Prevent default for right-click to avoid context menu during drag
+    if (e.button === 2) {
       e.preventDefault();
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     }
   }, [panOffset]);
 
@@ -193,6 +199,14 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
 
     // If dragging, update pan offset
     if (isDragging) {
+      const deltaX = Math.abs(e.clientX - mouseDownPos.x);
+      const deltaY = Math.abs(e.clientY - mouseDownPos.y);
+      
+      // If moved more than 5 pixels, consider it a drag (not a click)
+      if (deltaX > 5 || deltaY > 5) {
+        setHasMoved(true);
+      }
+      
       setPanOffset({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y,
@@ -212,7 +226,7 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
     } else {
       setHoveredTile(null);
     }
-  }, [isDragging, dragStart, offset, zoom]);
+  }, [isDragging, dragStart, offset, zoom, mouseDownPos]);
 
   // Handle mouse up (end drag)
   const handleMouseUp = useCallback(() => {
@@ -221,8 +235,11 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
 
   // Handle click
   const handleClick = useCallback((e) => {
-    // Don't process click if we were dragging
-    if (isDragging) return;
+    // Don't process click if we were dragging (moved more than threshold)
+    if (hasMoved) {
+      setIsDragging(false);
+      return;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -236,7 +253,9 @@ const IsometricCanvas = forwardRef(function IsometricCanvas({
     if (isValidGridPosition(gridPos.x, gridPos.y)) {
       onTileClick(gridPos.x, gridPos.y);
     }
-  }, [isDragging, offset, zoom, onTileClick]);
+    
+    setIsDragging(false);
+  }, [hasMoved, offset, zoom, onTileClick]);
 
   // Handle mouse wheel (zoom)
   const handleWheel = useCallback((e) => {
