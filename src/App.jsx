@@ -3,7 +3,7 @@ import {
   FaCity, FaMapMarkerAlt, FaPlay, FaPlusCircle, FaHammer, FaSyncAlt, FaLightbulb, FaGlobeAsia,
   FaPause, FaRoad, FaHome, FaCoffee, FaBuilding, FaTrash, FaSave, FaCoins, FaUsers, FaBriefcase,
   FaSmile, FaSun, FaCloudRain, FaWind, FaFire, FaRedo, FaTimes, FaLeaf, FaCloudUploadAlt, FaImage,
-  FaSnowflake, FaNewspaper, FaMoon, FaUtensils, FaShieldAlt, FaFireExtinguisher, FaList, FaInfoCircle,
+  FaSnowflake, FaNewspaper, FaMoon, FaUtensils, FaShieldAlt, FaFireExtinguisher, FaList, FaInfoCircle, FaTrophy,
 } from 'react-icons/fa';
 import IsometricCanvas from './components/IsometricCanvas';
 import SavesPanel from './components/SavesPanel';
@@ -12,7 +12,6 @@ import StatsPanel from './components/StatsPanel';
 import ControlPanel from './components/ControlPanel';
 import WeatherConfig from './components/WeatherConfig';
 import WorldMap from './components/WorldMap';
-import WorkshopPanel from './components/WorkshopPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
 import MayorReportPanel from './components/MayorReportPanel';
 import { fetchWeather, clearWeatherCache } from './services/weatherService';
@@ -25,8 +24,6 @@ import {
   eraseBuilding,
   processTick,
   shouldProcessTick,
-  exportCity,
-  downloadExport,
   exportCanvasAsImage,
   findSuggestedTile,
   collectDroppedCoins,
@@ -68,8 +65,12 @@ export default function App() {
   const [mayorLoading, setMayorLoading] = useState(false);
   const [showWorldMap, setShowWorldMap] = useState(false);
   const [showSavesPanel, setShowSavesPanel] = useState(false);
-  const [showWorkshopPanel, setShowWorkshopPanel] = useState(false);
+  const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
   const [showGazettePanel, setShowGazettePanel] = useState(false);
+  const [minimapCollapsed, setMinimapCollapsed] = useState(false);
+  const [minimapPosition, setMinimapPosition] = useState({ x: window.innerWidth - 156, y: window.innerHeight - 180 });
+  const [isDraggingMinimap, setIsDraggingMinimap] = useState(false);
+  const minimapDragStartRef = useRef({ x: 0, y: 0 });
   const [currentSaveId, setCurrentSaveId] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
   const [lastGeminiAutoTrigger, setLastGeminiAutoTrigger] = useState(null);
@@ -238,7 +239,6 @@ export default function App() {
               happiness: cityState.happiness,
             },
             worldCondition: cityState.worldCondition || 'CLEAR',
-            taxRate: cityState.taxRate,
             cityLog: (cityState.cityLog || []).slice(0, 5),
           });
           if (result?.report) {
@@ -379,7 +379,6 @@ export default function App() {
       const result = await requestMayorReport({
         stats: { coins: cityState.coins, population: cityState.population, jobs: cityState.jobs, happiness: cityState.happiness },
         worldCondition: cityState.worldCondition || 'CLEAR',
-        taxRate: cityState.taxRate,
         cityLog: (cityState.cityLog || []).slice(0, 5),
       });
       if (result?.report) {
@@ -411,20 +410,6 @@ export default function App() {
     lastTownSquareTriggerRef.current = now;
     await requestAndShowReport();
   }, [cityState, capabilities.gemini, requestAndShowReport]);
-
-  // Tax rate slider (0–10%)
-  const handleTaxChange = useCallback((e) => {
-    if (!cityState) return;
-    const v = Math.max(0, Math.min(10, Number(e.target.value) || 0));
-    setCityState({ ...cityState, taxRate: v / 100 });
-  }, [cityState]);
-
-  // Handle export as JSON
-  const handleExport = () => {
-    if (!cityState) return;
-    const jsonData = exportCity(cityState);
-    downloadExport(jsonData);
-  };
 
   // Handle export as image
   const handleExportImage = () => {
@@ -510,36 +495,47 @@ export default function App() {
     requestAndShowReport();
   }, [requestAndShowReport]);
 
-  const handleApplyVote = useCallback((voteType) => {
-    if (!cityState) return null;
-    const target = findSuggestedTile(cityState.grid);
-    if (!target) {
-      return null;
-    }
+  // Workshop Mode removed
 
-    let newState = null;
-    if (voteType === 'ERASE') {
-      newState = eraseBuilding(cityState, target.x, target.y);
-    } else {
-      newState = placeBuilding(cityState, target.x, target.y, voteType);
-    }
+  // Minimap drag handlers
+  const handleMinimapMouseDown = useCallback((e) => {
+    if (e.target.closest('.minimap-close') || e.target.closest('.minimap-toggle')) return;
+    setIsDraggingMinimap(true);
+    minimapDragStartRef.current = {
+      x: e.clientX - minimapPosition.x,
+      y: e.clientY - minimapPosition.y
+    };
+  }, [minimapPosition]);
 
-    if (newState) {
-      setCityState(newState);
-      return newState;
-    }
+  useEffect(() => {
+    if (!isDraggingMinimap) return;
 
-    return null;
-  }, [cityState]);
+    const handleMouseMove = (e) => {
+      const newX = e.clientX - minimapDragStartRef.current.x;
+      const newY = e.clientY - minimapDragStartRef.current.y;
+      
+      // Constrain to viewport
+      const maxX = window.innerWidth - 140;
+      const maxY = window.innerHeight - (minimapCollapsed ? 36 : 160);
+      
+      setMinimapPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY))
+      });
+    };
 
-  const handleReceiveState = useCallback((state) => {
-    if (!state) return;
-    setCityState(state);
-  }, []);
+    const handleMouseUp = () => {
+      setIsDraggingMinimap(false);
+    };
 
-  const handleWorkshopLog = useCallback((msg) => {
-    console.log('[Workshop]', msg);
-  }, []);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingMinimap, minimapCollapsed]);
 
   // Retry connection to server
   const handleRetrySetup = async () => {
@@ -995,9 +991,6 @@ cp env.example .env`}
           </button>
         </div>
 
-        <button className="floating-tool-btn export-btn" onClick={handleExport} title="Export as JSON">
-          <FaSave /> Export JSON
-        </button>
         <button className="floating-tool-btn export-btn" onClick={handleExportImage} title="Export as Image">
           <FaImage /> Export Image
         </button>
@@ -1023,20 +1016,6 @@ cp env.example .env`}
           <span className="stat-icon"><FaSmile /></span>
           <span className="stat-value">{cityState.happiness}</span>
           <span className="stat-goal">/{GOAL_HAPPINESS}</span>
-        </div>
-        <div className="stat-item tax-row">
-          <span className="stat-icon"><FaCoins /></span>
-          <span className="stat-label">Tax</span>
-          <input
-            type="range"
-            min="0"
-            max="10"
-            value={Math.round((cityState.taxRate || 0) * 100)}
-            onChange={handleTaxChange}
-            className="tax-slider"
-            title="Mayor tax 0–10%. Reduces income."
-          />
-          <span className="stat-value">{Math.round((cityState.taxRate || 0) * 100)}%</span>
         </div>
         <button 
           className={`floating-tool-btn city-log-btn ${showCityLog ? 'active' : ''}`}
@@ -1091,37 +1070,63 @@ cp env.example .env`}
         </div>
       )}
 
-      {/* MINIMAP (Bottom Right) */}
-      <div className="floating-minimap">
-        <div className="minimap-header">
-          MINIMAP
-          <button className="minimap-close" onClick={() => {}}><FaTimes /></button>
-        </div>
-        <div className="minimap-canvas">
-          {/* Simple minimap representation */}
-          <div className="minimap-grid">
-            {Array.from({ length: 144 }).map((_, i) => {
-              const x = i % 12;
-              const y = Math.floor(i / 12);
-              const key = `${x},${y}`;
-              const building = cityState.grid[key];
-              let color = '#4a7c59'; // grass
-              if (building) {
-                if (building.type === 'ROAD') color = '#666';
-                else if (building.type === 'HOUSE') color = '#5c9eed';
-                else if (building.type === 'CAFE') color = '#f4a460';
-                else if (building.type === 'OFFICE') color = '#8b7355';
-              }
-              return <div key={i} className="minimap-cell" style={{ background: color }} />;
-            })}
-          </div>
-          <div className="minimap-legend">
-            <span className="legend-item"><span style={{background:'#4a7c59'}}></span>G</span>
-            <span className="legend-item"><span style={{background:'#666'}}></span>R</span>
-            <span className="legend-item"><span style={{background:'#5c9eed'}}></span>H</span>
-            <span className="legend-item"><span style={{background:'#f4a460'}}></span>C</span>
+      {/* MINIMAP (Draggable & Collapsible) */}
+      <div 
+        className={`floating-minimap ${minimapCollapsed ? 'minimap-collapsed' : ''} ${isDraggingMinimap ? 'dragging' : ''}`}
+        style={{
+          left: `${minimapPosition.x}px`,
+          top: `${minimapPosition.y}px`,
+          right: 'auto',
+          bottom: 'auto',
+        }}
+      >
+        <div 
+          className="minimap-header"
+          onMouseDown={handleMinimapMouseDown}
+          style={{ cursor: isDraggingMinimap ? 'grabbing' : 'grab' }}
+        >
+          <span>MINIMAP</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className="minimap-toggle" 
+              onClick={() => setMinimapCollapsed(!minimapCollapsed)} 
+              title={minimapCollapsed ? "Expand minimap" : "Collapse minimap"}
+            >
+              {minimapCollapsed ? '▼' : '▲'}
+            </button>
           </div>
         </div>
+        {!minimapCollapsed && (
+          <div className="minimap-canvas">
+            {/* Simple minimap representation */}
+            <div className="minimap-grid">
+              {Array.from({ length: 144 }).map((_, i) => {
+                const x = i % 12;
+                const y = Math.floor(i / 12);
+                const key = `${x},${y}`;
+                const building = cityState.grid[key];
+                let color = '#4a7c59'; // grass
+                if (building) {
+                  if (building.type === 'ROAD') color = '#666';
+                  else if (building.type === 'HOUSE') color = '#5c9eed';
+                  else if (building.type === 'CAFE') color = '#f4a460';
+                  else if (building.type === 'OFFICE') color = '#8b7355';
+                  else if (building.type === 'RESTAURANT') color = '#e67e22';
+                  else if (building.type === 'POLICE') color = '#3498db';
+                  else if (building.type === 'FIRE') color = '#e74c3c';
+                }
+                return <div key={i} className="minimap-cell" style={{ background: color }} />;
+              })}
+            </div>
+            <div className="minimap-legend">
+              <span className="legend-item"><span style={{background:'#4a7c59'}}></span>G</span>
+              <span className="legend-item"><span style={{background:'#666'}}></span>R</span>
+              <span className="legend-item"><span style={{background:'#5c9eed'}}></span>H</span>
+              <span className="legend-item"><span style={{background:'#f4a460'}}></span>C</span>
+              <span className="legend-item"><span style={{background:'#8b7355'}}></span>O</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* FLOATING ACTION BUTTONS (Bottom Left) */}
@@ -1129,11 +1134,11 @@ cp env.example .env`}
         <button className="action-btn" onClick={() => setShowRulesPanel(true)} title="Game rules & costs">
           <FaInfoCircle />
         </button>
-        <button className="action-btn" onClick={() => setShowWorkshopPanel(true)} title="Workshop Mode">
-          <FaUsers />
-        </button>
         <button className="action-btn" onClick={() => setShowSavesPanel(true)} title="Cloud Saves (CRUD)">
           <FaCloudUploadAlt />
+        </button>
+        <button className="action-btn" onClick={() => { setShowLeaderboardPanel(true); handleRefreshLeaderboard(); }} title="Leaderboard">
+          <FaTrophy />
         </button>
         <button className="action-btn" onClick={() => setShowWorldMap(true)} title="Explore Earth">
           <FaGlobeAsia />
@@ -1193,24 +1198,19 @@ cp env.example .env`}
         onCurrentSaveIdChange={setCurrentSaveId}
       />
 
-      {/* Workshop Mode Panel */}
-      {showWorkshopPanel && (
-        <div className="workshop-overlay" onClick={() => setShowWorkshopPanel(false)}>
+      {/* Leaderboard Panel */}
+      {showLeaderboardPanel && (
+        <div className="workshop-overlay" onClick={() => setShowLeaderboardPanel(false)}>
           <div className="workshop-modal" onClick={(e) => e.stopPropagation()}>
-            <WorkshopPanel
+            <LeaderboardPanel
               enabled={capabilities.available}
-              cityState={cityState}
-              onApplyVote={handleApplyVote}
-              onReceiveState={handleReceiveState}
-              onLog={handleWorkshopLog}
+              items={leaderboard}
+              loading={leaderboardLoading}
+              publishing={publishingScore}
+              onPublish={handlePublishScore}
+              onRefresh={handleRefreshLeaderboard}
             />
-            <button
-              className="workshop-close-btn"
-              onClick={() => setShowWorkshopPanel(false)}
-              title="Close"
-            >
-              <FaTimes />
-            </button>
+            <button className="workshop-close-btn" onClick={() => setShowLeaderboardPanel(false)} title="Close"><FaTimes /></button>
           </div>
         </div>
       )}

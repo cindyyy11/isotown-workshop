@@ -1,12 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import http from 'http';
-import { Server as SocketServer } from 'socket.io';
 import sqlite3 from 'sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { swaggerUi, specs } from './swagger.js';
 
 // Load .env from project root (parent of server/) so it works regardless of cwd
 const __filename = fileURLToPath(import.meta.url);
@@ -43,11 +42,6 @@ const corsOptions = {
 const app = express();
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
-
-const server = http.createServer(app);
-const io = new SocketServer(server, {
-  cors: corsOptions,
-});
 
 // ===== SQLITE SETUP =====
 // Data folder next to server/index.js (__dirname from env loading above)
@@ -115,7 +109,28 @@ function dbAll(sql, params = []) {
   });
 }
 
-// ===== HEALTH CHECK =====
+// ===== SWAGGER API DOCUMENTATION =====
+// Visit http://localhost:5176/api-docs to see interactive API documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'IsoTown API Docs - Workshop',
+}));
+
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Check if the server is running and healthy
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthResponse'
+ */
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -160,11 +175,52 @@ app.get('/api/capabilities', (req, res) => {
     server: true,
     weather: Boolean(OPENWEATHERMAP_API_KEY), // Weather requires API key
     leaderboard: true,
-    voting: true,
     gemini: Boolean(GEMINI_API_KEY),
   });
 });
 
+/**
+ * @swagger
+ * /api/weather:
+ *   get:
+ *     summary: Get weather data
+ *     description: Fetch current weather conditions for given coordinates using OpenWeatherMap API
+ *     tags: [Weather]
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Latitude coordinate
+ *         example: 3.1390
+ *       - in: query
+ *         name: lon
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Longitude coordinate
+ *         example: 101.6869
+ *     responses:
+ *       200:
+ *         description: Weather data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Weather'
+ *       400:
+ *         description: Missing latitude or longitude
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       503:
+ *         description: Weather API key not configured
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // ===== WEATHER PROXY (OpenWeatherMap) =====
 // WORKSHOP NOTE: Requires OPENWEATHERMAP_API_KEY in .env
 // Get your free key at: https://openweathermap.org/api
@@ -240,7 +296,62 @@ app.get('/api/weather', async (req, res) => {
   }
 });
 
-// ===== CRUD: SCORE / LEADERBOARD =====
+/**
+ * @swagger
+ * /api/score:
+ *   post:
+ *     summary: Submit city score
+ *     description: Save a city's final score to the leaderboard
+ *     tags: [Leaderboard]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               city:
+ *                 type: object
+ *                 description: City state object
+ *               stats:
+ *                 type: object
+ *                 properties:
+ *                   coins:
+ *                     type: integer
+ *                     example: 100
+ *                   population:
+ *                     type: integer
+ *                     example: 25
+ *                   jobs:
+ *                     type: integer
+ *                     example: 20
+ *                   happiness:
+ *                     type: integer
+ *                     example: 18
+ *     responses:
+ *       200:
+ *         description: Score saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 score:
+ *                   type: integer
+ *                   example: 238
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       500:
+ *         description: Failed to save score
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.post('/api/score', async (req, res) => {
   try {
     const city = req.body?.city;
@@ -260,6 +371,32 @@ app.post('/api/score', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/leaderboard:
+ *   get:
+ *     summary: Get leaderboard
+ *     description: Retrieve top 20 city scores from the leaderboard
+ *     tags: [Leaderboard]
+ *     responses:
+ *       200:
+ *         description: Leaderboard retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 leaderboard:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/LeaderboardEntry'
+ *       500:
+ *         description: Failed to load leaderboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.get('/api/leaderboard', async (req, res) => {
   try {
     const rows = await dbAll(
@@ -339,6 +476,52 @@ app.delete('/api/city/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/mayor-report:
+ *   post:
+ *     summary: Generate AI mayor report
+ *     description: Generate a city analysis report using Google Gemini AI
+ *     tags: [Mayor]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               stats:
+ *                 type: object
+ *                 properties:
+ *                   coins:
+ *                     type: integer
+ *                   population:
+ *                     type: integer
+ *                   jobs:
+ *                     type: integer
+ *                   happiness:
+ *                     type: integer
+ *               worldCondition:
+ *                 type: string
+ *                 enum: [CLEAR, RAIN, SNOW, WIND, HEAT, COLD]
+ *               cityLog:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Report generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MayorReport'
+ *       503:
+ *         description: Gemini API key not configured
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // ===== GEMINI TOWN NEWSPAPER =====
 // Generates a fun "IsoTown Gazette" newspaper using AI
 app.post('/api/mayor-report', async (req, res) => {
@@ -350,13 +533,11 @@ app.post('/api/mayor-report', async (req, res) => {
   try {
     const stats = req.body?.stats || {};
     const worldCondition = req.body?.worldCondition || 'CLEAR';
-    const taxRate = req.body?.taxRate != null ? Math.max(0, Math.min(0.1, Number(req.body.taxRate))) : 0;
     const cityLog = Array.isArray(req.body?.cityLog) ? req.body.cityLog : [];
     
     const isStruggling = (stats.happiness || 0) < 5 || (stats.coins || 0) < 5;
     const isThriving = (stats.happiness || 0) > 15 && (stats.coins || 0) > 20;
     const hasWeatherIssue = worldCondition !== 'CLEAR';
-    const taxPct = Math.round(taxRate * 100);
     const logPreview = cityLog.length ? `Recent events: ${cityLog.join('; ')}.` : 'No recent events.';
     
     const prompt = `You are writing a tiny pixel town newspaper called "The IsoTown Gazette".
@@ -367,12 +548,11 @@ Current town stats:
 - Population: ${stats.population || 0}
 - Jobs: ${stats.jobs || 0}
 - Happiness: ${stats.happiness || 0} ${isStruggling ? '(citizens unhappy!)' : isThriving ? '(citizens delighted!)' : ''}
-- Mayor tax: ${taxPct}% ${taxPct > 0 ? '(reduces income)' : ''}
 ${logPreview}
 
 Write in this EXACT format (keep each part short, 1-2 sentences max):
 
-HEADLINE: [A creative, funny 4-6 word headline about the town. Reference stats, tax, or recent events if relevant.]
+HEADLINE: [A creative, funny 4-6 word headline about the town. Reference stats or recent events if relevant.]
 
 CITIZEN: "[A short quote from a made-up pixel resident. ${isStruggling ? 'They complain about something specific (rent, happiness, jobs).' : isThriving ? 'They praise something.' : 'Neutral or mild opinion.'} Use a fun name like 'Pixel Pete' or 'Blocky Betty']"
 
@@ -381,7 +561,7 @@ TIP: [One specific, actionable suggestion: build a Restaurant/Police/Fire/Cafe/O
 Be playful and fun! Match the tone to the town's state.`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -424,106 +604,8 @@ Be playful and fun! Match the tone to the town's state.`;
   }
 });
 
-// ===== SOCKET.IO VOTING =====
-const rooms = new Map();
-
-function createRoom(roomId) {
-  return {
-    id: roomId,
-    votes: { HOUSE: 0, CAFE: 0, OFFICE: 0, ROAD: 0, ERASE: 0 },
-    timer: null,
-    endsAt: null,
-    participants: new Set(), // Track socket IDs
-    hostId: null,
-  };
-}
-
-function resetVotes(room) {
-  room.votes = { HOUSE: 0, CAFE: 0, OFFICE: 0, ROAD: 0, ERASE: 0 };
-}
-
-function broadcastParticipantCount(io, roomId, room) {
-  const count = room.participants.size;
-  io.to(roomId).emit('participant_count', { roomId, count });
-}
-
-io.on('connection', (socket) => {
-  socket.on('join_room', ({ roomId, role }) => {
-    if (!roomId) return;
-    socket.join(roomId);
-    if (!rooms.has(roomId)) {
-      rooms.set(roomId, createRoom(roomId));
-    }
-    const room = rooms.get(roomId);
-    room.participants.add(socket.id);
-    
-    // Track host
-    if (role === 'host') {
-      room.hostId = socket.id;
-    }
-    
-    socket.emit('vote_update', { roomId, votes: room.votes });
-    broadcastParticipantCount(io, roomId, room);
-  });
-
-  socket.on('disconnect', () => {
-    // Remove from all rooms
-    rooms.forEach((room, roomId) => {
-      if (room.participants.has(socket.id)) {
-        room.participants.delete(socket.id);
-        if (room.hostId === socket.id) {
-          room.hostId = null;
-        }
-        broadcastParticipantCount(io, roomId, room);
-        
-        // Clean up empty rooms
-        if (room.participants.size === 0) {
-          if (room.timer) clearInterval(room.timer);
-          rooms.delete(roomId);
-        }
-      }
-    });
-  });
-
-  socket.on('cast_vote', ({ roomId, vote }) => {
-    if (!roomId || !rooms.has(roomId)) return;
-    const room = rooms.get(roomId);
-    if (!Object.prototype.hasOwnProperty.call(room.votes, vote)) return;
-    room.votes[vote] += 1;
-    io.to(roomId).emit('vote_update', { roomId, votes: room.votes });
-  });
-
-  socket.on('start_vote', ({ roomId, durationMs = 30000 }) => {
-    if (!roomId) return;
-    if (!rooms.has(roomId)) {
-      rooms.set(roomId, createRoom(roomId));
-    }
-    const room = rooms.get(roomId);
-    resetVotes(room);
-    room.endsAt = Date.now() + durationMs;
-
-    if (room.timer) clearInterval(room.timer);
-    room.timer = setInterval(() => {
-      const remaining = Math.max(0, room.endsAt - Date.now());
-      io.to(roomId).emit('timer_tick', { roomId, remainingMs: remaining });
-      if (remaining <= 0) {
-        clearInterval(room.timer);
-        room.timer = null;
-        io.to(roomId).emit('vote_update', { roomId, votes: room.votes });
-      }
-    }, 1000);
-
-    io.to(roomId).emit('vote_update', { roomId, votes: room.votes });
-  });
-
-  socket.on('state_update', ({ roomId, state }) => {
-    if (!roomId) return;
-    io.to(roomId).emit('state_update', { roomId, state });
-  });
-});
-
 // ===== START SERVER =====
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   const envFound = fs.existsSync(envPath);
   console.log(`[IsoTown Server] Running on port ${PORT}`);
   console.log(`[IsoTown Server] .env: ${envFound ? `loaded from ${envPath}` : `NOT FOUND at ${envPath} (copy env.example → .env)`}`);

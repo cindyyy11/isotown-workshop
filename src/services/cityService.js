@@ -107,6 +107,12 @@ export function placeBuilding(state, x, y, buildingType) {
   const key = getGridKey(x, y);
   const building = BUILDING_TYPES[buildingType];
 
+  // Validate building type exists
+  if (!building) {
+    console.warn(`Unknown building type: ${buildingType}`);
+    return null;
+  }
+
   // Check if tile is occupied
   if (state.grid[key]) return null;
 
@@ -271,7 +277,6 @@ function randomAdjacentRoad(grid, x, y) {
  * Process tick simulation
  * Working hours: Office/Cafe/Restaurant earn only during day (tickInDay 0–5).
  * Rent: 1 coin per house per day (deducted over 12 ticks).
- * Tax: income scaled by (1 - taxRate).
  * Safety: Police/Fire reduce random unhappiness events.
  */
 export function processTick(state) {
@@ -280,7 +285,6 @@ export function processTick(state) {
   const tickCount = (state.tickCount || 0) + 1;
   const tickInDay = (tickCount - 1) % 12;
   const isDay = tickInDay < 6;
-  const taxRate = Math.max(0, Math.min(0.1, state.taxRate || 0));
   const houseCount = countBuildings(state.grid, 'HOUSE');
   const rentPerTick = Math.ceil(houseCount / 12);
   const safety = countSafety(state.grid);
@@ -315,11 +319,6 @@ export function processTick(state) {
 
   // Rent: deduct per day (spread over 12 ticks)
   coinChange -= rentPerTick;
-
-  // Tax: reduce income (apply to positive change only; rent is already subtracted)
-  const incomeOnly = Math.max(0, coinChange + rentPerTick);
-  const afterTax = Math.floor(incomeOnly * (1 - taxRate));
-  coinChange = afterTax - rentPerTick;
 
   // HEAT: happiness -1 per tick unless at least 1 Cafe exists
   if (state.worldCondition === 'HEAT') {

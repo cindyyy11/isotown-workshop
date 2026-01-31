@@ -132,7 +132,6 @@ export const INITIAL_STATE = {
   selectedTool: 'ROAD',
   characters: [],
   lastCharacterUpdate: Date.now(),
-  taxRate: 0,           // 0–0.10 (10% max). Reduces income.
   cityLog: [],
   droppedCoins: [],
   includePlayer: true,  // Option B: WASD player, collect coins, interact, trigger Gemini
