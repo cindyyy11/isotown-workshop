@@ -1,0 +1,13 @@
+TODO #6: Improve error message when listing saves fails (SavesPanel.jsx) - Easy UX
+
+FILE: src/components/SavesPanel.jsx
+LOCATION: In loadList's catch block (around line 42)
+
+ANSWER - Replace:
+  setError(e.message || 'Failed to list saves');
+with a clearer message, e.g.:
+  setError(`Could not load saves. ${e.message || 'Check VITE_MOCKAPI_BASE_URL in .env and internet connection.'}`);
+
+VERIFY: Break MockAPI URL in .env → open Cloud Saves → see new error message
+
+See "#6 checkpoint.md" for full details and options.

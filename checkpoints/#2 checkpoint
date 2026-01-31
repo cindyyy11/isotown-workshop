@@ -1,0 +1,11 @@
+TODO #2: Add console.log for fresh fetch (weatherService.js) - Easy
+
+FILE: src/services/weatherService.js
+LOCATION: In fetchWeather(), right before the "try {" that calls the API (around line 124)
+
+ANSWER - Add this line:
+  console.log('🌐 Fetching fresh weather from server...', { lat, lon });
+
+VERIFY: Change location → open Console → see "🌐 Fetching fresh weather..." and a request in Network tab
+
+See "#2 checkpoint.md" for full details and teaching notes.

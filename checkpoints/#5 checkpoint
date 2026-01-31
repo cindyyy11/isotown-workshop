@@ -1,0 +1,18 @@
+TODO #5: Add PARK button (App.jsx) - Challenge Easy
+PREREQUISITE: TODO #4 (PARK in buildingData.js) must be done first.
+
+FILE: src/App.jsx
+
+1) Add FaTree to icon imports at top (with FaTrophy, FaTree, etc.)
+
+2) Replace the TODO #5 comment block with this button (after FIRE button):
+   <button
+     className={`floating-tool-btn ${cityState.selectedTool === 'PARK' ? 'active' : ''}`}
+     onClick={() => handleSelectTool('PARK')}
+   >
+     <FaTree /> {BUILDING_TYPES['PARK'].name} <span className="tool-cost">${BUILDING_TYPES['PARK'].cost}</span>
+   </button>
+
+VERIFY: Refresh app → PARK button appears → click and place → happiness increases
+
+See "#5 checkpoint.md" for full details and teaching notes.

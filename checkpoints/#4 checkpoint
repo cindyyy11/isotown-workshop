@@ -1,0 +1,22 @@
+TODO #4: Add PARK building (buildingData.js) - Challenge Easy
+
+FILE: src/data/buildingData.js
+
+1) Add FaTree to imports at top:
+   import { ..., FaTree } from 'react-icons/fa';
+
+2) Add PARK inside BUILDING_TYPES (after FIRE):
+   PARK: {
+     id: 'PARK',
+     name: 'Park',
+     icon: FaTree,
+     cost: 4,
+     color: '#4a7c59',
+     secondaryColor: '#6b9d7a',
+     effects: { population: 0, happiness: 1, jobs: 0 },
+     description: '+1 Happiness. Green space for relaxation.',
+   },
+
+VERIFY: Complete TODO #5 (PARK button) then place a park → happiness increases
+
+See "#4 checkpoint.md" for full details and teaching notes.

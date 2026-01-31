@@ -1,0 +1,17 @@
+#1: Add console.log for debugging (weatherService.js) - Easy
+
+FILE: src/services/weatherService.js
+LOCATION: Inside fetchWeather(), in the "if (cached)" block (around line 111)
+
+ANSWER - Add this line:
+  console.log('✅ Using cached weather data:', cached);
+
+FULL BLOCK (after):
+  if (cached) {
+    console.log('✅ Using cached weather data:', cached);
+    return cached;
+  }
+
+VERIFY: Change location twice within 5 min → open Console → see "✅ Using cached weather data"
+
+See "#1 checkpoint.md" for full details and teaching notes.

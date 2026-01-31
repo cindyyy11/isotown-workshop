@@ -1,0 +1,18 @@
+TODO #3: Create GET /api/version endpoint (server/index.js) - Medium
+
+FILE: server/index.js
+LOCATION: After /health route, before "// ===== CAPABILITIES ====="
+
+ANSWER - Add this route:
+  app.get('/api/version', (req, res) => {
+    res.json({
+      version: '1.0.0',
+      name: 'IsoTown',
+      author: 'Your Name',
+      description: 'Pixel city builder with real-world APIs'
+    });
+  });
+
+VERIFY: Restart server → GET http://localhost:5176/api/version → see JSON response
+
+See "#3 checkpoint.md" for full details and teaching notes.

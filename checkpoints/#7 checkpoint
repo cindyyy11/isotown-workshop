@@ -1,0 +1,13 @@
+TODO #7: Improve error when loading a save fails (SavesPanel.jsx) - Easy UX
+
+FILE: src/components/SavesPanel.jsx
+LOCATION: In handleLoad's catch block (around line 75)
+
+ANSWER - Replace:
+  setError(e.message || 'Failed to load save');
+with a clearer message, e.g.:
+  setError(e.message || 'Could not load save. Check connection and that the save still exists.');
+
+VERIFY: Try loading a deleted/invalid save → see new error message
+
+See "#7 checkpoint.md" for full details and options.

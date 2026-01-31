@@ -1,0 +1,17 @@
+TODO #8: Add "notes" field (full-stack) - Challenge Hard
+
+1) MOCKAPI: In mockapi.io → citysaves resource → Add field "notes" (string, default "")
+
+2) savesApiService.js:
+   - In createSave body add: notes: payload.notes || '',
+   - In updateSave body add: notes: payload.notes || '',
+
+3) SavesPanel.jsx:
+   - Add state: const [notes, setNotes] = useState('');
+   - Add textarea for notes (value={notes}, onChange)
+   - Include notes in payload when creating/updating save
+   - When loading save, setNotes(save.notes || '') and/or display save.notes
+
+VERIFY: Save with notes → reload → load save → notes appear and persist
+
+See "#8 checkpoint.md" for full step-by-step and code.
