@@ -75,11 +75,11 @@ In `api/capabilities`, you should see:
   - DevTools **Network** (see `GET /api/weather`)
   - DevTools **Console**
   - backend logs in your terminal
-- **Practice REST with Postman** (optional): CRUD using MockAPI (`ENDPOINTS.md`)
+- **Practice REST with Postman** (optional): CRUD using MockAPI 
 
 ## Game rules (quick)
 
-Read `GAME_RULES.md` for the full rules. The main idea:
+The main idea:
 - Economy updates every **5 seconds**
 - Weather can change income rules (RAIN/WIND/HEAT)
 - You can **Pause** to inspect state/APIs without the game changing
@@ -91,8 +91,7 @@ Read `GAME_RULES.md` for the full rules. The main idea:
 - **Weather fetch + caching**: `src/services/weatherService.js` (calls `GET /api/weather`)
 - **Game logic (tick / place / erase)**: `src/services/cityService.js`
 - **Backend endpoints**: `server/index.js`
-- **MockAPI CRUD docs**: `ENDPOINTS.md`
-- **Data flow walkthrough**: `DATA_FLOW.md`
+- 
 
 ## Backend API (the ones you’ll see in DevTools)
 
